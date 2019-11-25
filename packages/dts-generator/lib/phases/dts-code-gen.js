@@ -318,8 +318,33 @@ function genEnum(ast) {
   let text = "";
   text += JSDOC(ast) + NL;
   text += `enum ${ast.name} {` + NL;
-  text += APPEND_ITEMS(ast.values, genEnumValue);
+  if ( isStringEnum(ast) ) {
+    console.log("string enum", ast.name);
+    text += APPEND_ITEMS(ast.values, genEnumStringValue);
+  } else {
+    text += APPEND_ITEMS(ast.values, genEnumValue);
+  }
   text += "}";
+
+  return text;
+}
+
+/**
+ * @param ast {Enum}
+ * @return {boolean}
+ */
+function isStringEnum(ast) {
+  return ast.values.every((value) => value.type && value.type.type === 'string');
+}
+
+/**
+ * @param ast {Variable}
+ * @returns {string}
+ */
+function genEnumStringValue(ast) {
+  let text = "";
+  text += JSDOC(ast) + NL;
+  text += `${ast.name} = "${ast.name}",`;
 
   return text;
 }
