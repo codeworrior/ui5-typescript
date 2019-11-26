@@ -318,12 +318,7 @@ function genEnum(ast) {
   let text = "";
   text += JSDOC(ast) + NL;
   text += `enum ${ast.name} {` + NL;
-  if ( isStringEnum(ast) ) {
-    console.log("string enum", ast.name);
-    text += APPEND_ITEMS(ast.values, genEnumStringValue);
-  } else {
-    text += APPEND_ITEMS(ast.values, genEnumValue);
-  }
+  text += APPEND_ITEMS(ast.values, genEnumConstant);
   text += "}";
 
   return text;
@@ -333,31 +328,24 @@ function genEnum(ast) {
  * @param ast {Enum}
  * @return {boolean}
  */
-function isStringEnum(ast) {
-  return ast.values.every((value) => value.type && value.type.type === 'string');
+function isUI5Enum(ast) {
+  return ast.values.every((value) => value.type && typeof value.type.value === 'string');
 }
 
 /**
- * @param ast {Variable}
+ * @param ast {Constant}
  * @returns {string}
  */
-function genEnumStringValue(ast) {
+function genEnumConstant(ast) {
   let text = "";
   text += JSDOC(ast) + NL;
-  text += `${ast.name} = "${ast.name}",`;
-
-  return text;
-}
-
-/**
- * @param ast {Variable}
- * @returns {string}
- */
-function genEnumValue(ast) {
-  let text = "";
-  text += JSDOC(ast) + NL;
-  text += `${ast.name},`;
-
+  if ( ast.value === undefined ) {
+    text += `${ast.name},`;
+  } else if ( typeof ast.value === "string" ) {
+    text += `${ast.name} = "${ast.value.replace(/"/g, "\\\"")}",`;
+  } else {
+    text += `${ast.name} = ${ast.value},`;
+  }
   return text;
 }
 

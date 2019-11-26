@@ -25,6 +25,15 @@ interface Variable extends UI5JSDocs {
   visibility: UI5Visibility;
 }
 
+interface Constant extends UI5JSDocs {
+  kind: "Constant";
+  name: string;
+  static?: boolean;
+  type: Type;
+  value: number | string | boolean | undefined, // undefined is only allowed for enum values
+  visibility: UI5Visibility;
+}
+
 interface FunctionDesc extends UI5JSDocs {
   kind: "FunctionDesc";
   name: string;
@@ -74,7 +83,7 @@ interface Class extends UI5JSDocs {
 interface Enum extends UI5JSDocs {
   kind: "Enum";
   name: string;
-  values: Variable[];
+  values: Constant[];
   visibility: UI5Visibility;
 }
 

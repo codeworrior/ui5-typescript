@@ -97,6 +97,28 @@ function buildVariable(property) {
 }
 
 /**
+*
+* @param property
+* @returns {Constant}
+*/
+function buildConstant(property, isPartOfStandardEnum) {
+ assertKnownProps(["examples", "name", "type", "value"], property);
+
+ const astNode = {
+   kind: "Constant",
+   name: property.name,
+   static: property.static === true,
+   type: buildType(property.type),
+   // for UI5 standard enums, UI5 does not store the value, it always equals the key
+   value: isPartOfStandardEnum ? property.name : property.value,
+   visibility: property.visibility
+ };
+
+ addJsDocProps(astNode, property);
+ return astNode;
+}
+
+/**
  * @param ui5Method
  * @returns {FunctionDesc}
  */
@@ -308,13 +330,15 @@ function buildInterface(ui5Interface) {
 function buildEnum(ui5Enum) {
   assertKnownProps(["name", "basename", "properties"], ui5Enum);
 
+  // UI5 standard enums are represented differently
+  const isStandardEnum = ui5Enum["ui5-metadata"] && ui5Enum["ui5-metadata"].stereotype === "enum"; 
   const astNode = {
     kind: "Enum",
     name: ui5Enum.basename,
-    values: _.map(ui5Enum.properties, buildVariable),
+    values: _.map(ui5Enum.properties, (prop) => buildConstant(prop, isStandardEnum)),
     visibility: ui5Enum.visibility
   };
-
+ 
   addJsDocProps(astNode, ui5Enum);
   return astNode;
 }
